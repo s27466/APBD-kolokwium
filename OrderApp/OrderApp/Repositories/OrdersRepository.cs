@@ -17,24 +17,57 @@ public class OrdersRepository : IOrdersRepository
         con.Open();
 
         using var cmd = new SqlCommand();
-        
+    
         cmd.Connection = con;
-        cmd.CommandText = "SELECT IdOrder, Name, Description, date, IdClient FROM Order WHERE IdOrder = @IdOrder";
+        cmd.CommandText = @"
+        SELECT 
+            o.IdOrder, 
+            o.Name, 
+            o.Description, 
+            o.CreationDate, 
+            o.IdClient,
+            p.IdProduct,
+            p.Name AS ProductName,
+            op.Quantity
+        FROM 
+            [Order] o
+        INNER JOIN 
+            [Order_Product] op ON o.IdOrder = op.IdOrder
+        INNER JOIN 
+            [Product] p ON op.IdProduct = p.IdProduct
+        WHERE 
+            o.IdOrder = @IdOrder;
+    ";
         cmd.Parameters.AddWithValue("@IdOrder", id);
-        
+    
         var dr = cmd.ExecuteReader();
-        
-        if (!dr.Read()) return null;
-        
-        var order = new Order
+    
+        Order order = null;
+        while (dr.Read())
         {
-            IdOrder = (int)dr["IdOrder"],
-            Name = dr["Name"].ToString(),
-            Description = dr["Description"].ToString(),
-            date = (DateTime)dr["date"],
-            IdClient = (int)dr["IdClient"],
-        };
-        
+            if (order == null)
+            {
+                order = new Order
+                {
+                    IdOrder = (int)dr["IdOrder"],
+                    Name = dr["Name"].ToString(),
+                    Description = dr["Description"].ToString(),
+                    CreationDate = (DateTime)dr["CreationDate"],
+                    IdClient = (int)dr["IdClient"],
+                    Products = new List<Product>()
+                };
+            }
+
+            order.Products.Add(new Product
+            {
+                IdProduct = (int)dr["IdProduct"],
+                Name = dr["ProductName"].ToString(),
+                Price = (float)dr["Price"],
+                Quantity = (int)dr["Quantity"]
+            });
+        }
+    
         return order;
     }
+
 }
