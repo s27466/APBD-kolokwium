@@ -24,7 +24,8 @@ public class OrdersRepository : IOrdersRepository
             FROM [Order] o
             INNER JOIN [Order_Product] op ON o.IdOrder = op.IdOrder
             INNER JOIN [Product] p ON op.IdProduct = p.IdProduct
-            WHERE o.IdOrder = @IdOrder";
+            WHERE o.IdOrder = @IdOrder
+            ORDER BY p.Name DESC";
         cmd.Parameters.AddWithValue("@IdOrder", id);
     
         var dr = cmd.ExecuteReader();
@@ -46,7 +47,7 @@ public class OrdersRepository : IOrdersRepository
             {
                 IdProduct = (int)dr["IdProduct"],
                 Name = dr["ProductName"].ToString(),
-                Price = (float)dr["Price"],
+                //Price = (float)dr["Price"],
                 Quantity = (int)dr["Quantity"]
             });
         }
