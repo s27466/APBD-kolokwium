@@ -13,6 +13,8 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
         builder.Services.AddScoped<IOrdersService, OrdersService>();
+        builder.Services.AddScoped<IClientsRepository, ClientsRepository>();
+        builder.Services.AddScoped<IClientsService, ClientsService>();
 
         var app = builder.Build();
 

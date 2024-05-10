@@ -7,5 +7,5 @@ public class Order
     public string Description { get; set; }
     public DateTime CreationDate { get; set; }
     public int IdClient { get; set; }
-    public List<Product> Products { get; set; } // Lista produktów w zamówieniu
+    public List<Product> Products { get; set; }
 }

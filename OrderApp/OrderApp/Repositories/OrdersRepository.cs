@@ -5,7 +5,7 @@ namespace OrderApp.Repositories;
 
 public class OrdersRepository : IOrdersRepository
 {
-    private IConfiguration _configuration;
+    private readonly IConfiguration _configuration;
 
     public OrdersRepository(IConfiguration configuration)
     {
@@ -20,24 +20,11 @@ public class OrdersRepository : IOrdersRepository
     
         cmd.Connection = con;
         cmd.CommandText = @"
-        SELECT 
-            o.IdOrder, 
-            o.Name, 
-            o.Description, 
-            o.CreationDate, 
-            o.IdClient,
-            p.IdProduct,
-            p.Name AS ProductName,
-            op.Quantity
-        FROM 
-            [Order] o
-        INNER JOIN 
-            [Order_Product] op ON o.IdOrder = op.IdOrder
-        INNER JOIN 
-            [Product] p ON op.IdProduct = p.IdProduct
-        WHERE 
-            o.IdOrder = @IdOrder;
-    ";
+            SELECT o.IdOrder, o.Name, o.Description, o.CreationDate, o.IdClient, p.IdProduct, p.Name AS ProductName, op.Quantity
+            FROM [Order] o
+            INNER JOIN [Order_Product] op ON o.IdOrder = op.IdOrder
+            INNER JOIN [Product] p ON op.IdProduct = p.IdProduct
+            WHERE o.IdOrder = @IdOrder";
         cmd.Parameters.AddWithValue("@IdOrder", id);
     
         var dr = cmd.ExecuteReader();
@@ -45,18 +32,15 @@ public class OrdersRepository : IOrdersRepository
         Order order = null;
         while (dr.Read())
         {
-            if (order == null)
+            order ??= new Order
             {
-                order = new Order
-                {
-                    IdOrder = (int)dr["IdOrder"],
-                    Name = dr["Name"].ToString(),
-                    Description = dr["Description"].ToString(),
-                    CreationDate = (DateTime)dr["CreationDate"],
-                    IdClient = (int)dr["IdClient"],
-                    Products = new List<Product>()
-                };
-            }
+                IdOrder = (int)dr["IdOrder"],
+                Name = dr["Name"].ToString(),
+                Description = dr["Description"].ToString(),
+                CreationDate = (DateTime)dr["CreationDate"],
+                IdClient = (int)dr["IdClient"],
+                Products = new List<Product>()
+            };
 
             order.Products.Add(new Product
             {
